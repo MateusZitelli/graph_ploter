@@ -4,27 +4,27 @@ from random import random
 class Ploter:
     def __init__(self, equacao, inicio, fim, passos, passosy = None, sensibilidade_derivada = 0.2):
         self.eq_str = equacao
-        self.equacao = lambda x: eval(equacao)
+        self.equacao = lambda x: eval(equacao) #Transforma a string da equação em uma função
         self.extremos = (inicio, fim)
         self.passos = passos
-        self.dP = (fim - inicio) / float(passos)
-        if passosy == None:
+        self.dP = (fim - inicio) / float(passos) #Define o passo em X
+        if passosy == None: #Se não for passado valor de passos em y é definido como o número de passos X
             self.passosy = passos
         else:
             self.passosy = passosy
         self.sensibilidade_derivada = sensibilidade_derivada
 
     def gerar_imagens(self):
-        self.ims = []
+        self.ims = [] #Lista das imagens da funçao
         for i in range(self.passos):
             x = i * self.dP + self.extremos[0]
-            try:
+            try: #Tenta rodar a função
                 y = self.equacao(x)
-            except:
+            except: #Se der erro define que não existe imagem nesse ponto
                 y = None
             self.ims.append(y)
         mini = max(self.ims)
-        for img in self.ims[1:]:
+        for img in self.ims: #Acha, a menor imagem, pois o min do python não funciona, selecionando um valor None
             if img == None:
                 continue
             if img < mini:
@@ -33,6 +33,7 @@ class Ploter:
         delta = self.extremosy[1] - self.extremosy[0]
         if delta == 0:
             delta = 0.0001
+        #Normaliza os valores da imagem entre 0~passosy e arredonda para o inteiro mais próximo para ser usada como índice
         self.ims_normalizadas = [int(round((i - self.extremosy[0]) / float(delta) * self.passosy)) for i in self.ims if i != None]
         self.ims_normalizadas.reverse()
         self.dPy = (self.extremosy[1] - self.extremosy[0]) / float(self.passosy)
@@ -41,18 +42,20 @@ class Ploter:
         self.x_cord_lines = len(str(self.passos))
         self.matriz = [[" " for i in range(self.passos)] for j in range(self.passosy + 2 + self.x_cord_lines)]
         for i, j in enumerate(self.ims_normalizadas):
-            if j == None: continue
-            x = self.extremos[1] - (i + 1) * self.dP
+            if j == None:
+                continue
+            x = self.extremos[1] - (i + 1) * self.dP #Acha o valor de X para encontrar a derivada nesse ponto
             d = self.derivada(x)
-            if d > self.sensibilidade_derivada:
+            if d > self.sensibilidade_derivada: #Escolhe o caracter para representar o ponto dependendo da devivada
                 self.matriz[j + self.x_cord_lines + 1][i] = "/"
             elif d < -self.sensibilidade_derivada:
                 self.matriz[j + self.x_cord_lines + 1][i] = "\\"
             else:
+            x = self.extremos[1] - (i + 1) * self.dP #A
                 self.matriz[j + self.x_cord_lines + 1][i] = "-"
-        for i in range(self.passos):
+        for i in range(self.passos): #Linha inferior
             self.matriz[self.x_cord_lines][i] = "-"
-        for i in range(self.x_cord_lines):
+        for i in range(self.x_cord_lines): #Valores de X
             for j in range(self.passos):
                 value = ((j / (10 ** (i))) % (10 ** (i + 1)))
                 if value == 0 and j != 0 and i != 0:
@@ -63,17 +66,17 @@ class Ploter:
     def printa(self):
         print "y =", self.eq_str
         for i, linha in enumerate(self.matriz[::-1]):
-            if i > self.passosy - self.x_cord_lines + 3:
+            if i > self.passosy - self.x_cord_lines + 3: #Espaço no canto inferior esquerdo
                 y_cord = " " * 10
-            elif i == self.passosy - self.x_cord_lines + 3:
+            elif i == self.passosy - self.x_cord_lines + 3: #Traços encima do espaço
                 y_cord = "-" * 10
-            else:
+            else: #Coordenadas de Y
                 y_cord = "%.2e" % (self.extremosy[1] - self.dPy * i)
                 y_cord = y_cord + " " * (10 - len(y_cord))
             print y_cord , "|",
-            for char in linha[::-1]:
+            for char in linha[::-1]: #Printa o gráfico
                 print char,
-            if i != self.passosy + 3:
+            if i != self.passosy + 3: #Pula a linha
                 print
         print "(* %.2f + %.2f)" % (self.dP, self.extremos[0])
 
@@ -84,6 +87,7 @@ class Ploter:
         return m
 
     def achar_raiz(self, init):
+        #Método de Newton
         x_atual = init
         dx = 0
         for i in range(1000):
@@ -115,6 +119,6 @@ class Ploter:
         self.gerar_matriz()
         self.printa()
 
-p = Ploter("sin(x + 1)", -10,10, 80, 30, 0.8)
+p = Ploter("sin(x) * x", 0,20, 80,30, 0.2)
 p.plot()
 print "Uma raiz ->", p.pegar_raiz_qualquer()
