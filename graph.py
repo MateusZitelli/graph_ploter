@@ -1,3 +1,4 @@
+# coding:utf-8
 from math import *
 from random import random
 
@@ -51,7 +52,6 @@ class Ploter:
             elif d < -self.sensibilidade_derivada:
                 self.matriz[j + self.x_cord_lines + 1][i] = "\\"
             else:
-            x = self.extremos[1] - (i + 1) * self.dP #A
                 self.matriz[j + self.x_cord_lines + 1][i] = "-"
         for i in range(self.passos): #Linha inferior
             self.matriz[self.x_cord_lines][i] = "-"
@@ -119,6 +119,6 @@ class Ploter:
         self.gerar_matriz()
         self.printa()
 
-p = Ploter("sin(x) * x", 0,20, 80,30, 0.2)
+p = Ploter("x ** 3", -20,20, 80,30, 0.2)
 p.plot()
 print "Uma raiz ->", p.pegar_raiz_qualquer()
