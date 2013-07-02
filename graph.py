@@ -46,7 +46,10 @@ class Ploter:
             if j == None:
                 continue
             x = self.extremos[1] - (i + 1) * self.dP #Acha o valor de X para encontrar a derivada nesse ponto
-            d = self.derivada(x)
+            try:
+                d = self.derivada(x)
+            except:
+                d = 0
             if d > self.sensibilidade_derivada: #Escolhe o caracter para representar o ponto dependendo da devivada
                 self.matriz[j + self.x_cord_lines + 1][i] = "/"
             elif d < -self.sensibilidade_derivada:
@@ -57,18 +60,17 @@ class Ploter:
             self.matriz[self.x_cord_lines][i] = "-"
         for i in range(self.x_cord_lines): #Valores de X
             for j in range(self.passos):
-                value = ((j / (10 ** (i))) % (10 ** (i + 1)))
-                if value == 0 and j != 0 and i != 0:
-                    continue
+                value = "0" * (self.x_cord_lines - len(str(j))) + str(j)
+                value = value[self.x_cord_lines - 1 - i]
                 self.matriz[i][self.passos - j - 1] = value
         
 
     def printa(self):
         print "y =", self.eq_str
         for i, linha in enumerate(self.matriz[::-1]):
-            if i > self.passosy - self.x_cord_lines + 3: #Espaço no canto inferior esquerdo
+            if i > self.passosy - self.x_cord_lines + self.x_cord_lines + 1: #Espaço no canto inferior esquerdo
                 y_cord = " " * 10
-            elif i == self.passosy - self.x_cord_lines + 3: #Traços encima do espaço
+            elif i == self.passosy - self.x_cord_lines + self.x_cord_lines + 1: #Traços encima do espaço
                 y_cord = "-" * 10
             else: #Coordenadas de Y
                 y_cord = "%.2e" % (self.extremosy[1] - self.dPy * i)
@@ -76,7 +78,7 @@ class Ploter:
             print y_cord , "|",
             for char in linha[::-1]: #Printa o gráfico
                 print char,
-            if i != self.passosy + 3: #Pula a linha
+            if i != self.passosy + 4: #Pula a linha
                 print
         print "(* %.2f + %.2f)" % (self.dP, self.extremos[0])
 
@@ -119,6 +121,6 @@ class Ploter:
         self.gerar_matriz()
         self.printa()
 
-p = Ploter("x ** 3", -20,20, 80,30, 0.2)
+p = Ploter("sin(x) / x", -10,10, 130,50, 0.2)
 p.plot()
 print "Uma raiz ->", p.pegar_raiz_qualquer()
